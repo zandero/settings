@@ -1,0 +1,19 @@
+
+ // a sample config file to test out
+ // setting file parser
+
+ // LIMITATIONS:
+ // * comment are allowed only in own line - they can not be put on the end of a setting
+ // * lists can not contain "," as item
+
+ a = 1
+ test = value
+ boolean = true
+
+ list = [has, some, items]
+
+ string = "[very, very long "string"]  "
+
+ normalString = some string this is
+
+ # this line should be ignored
