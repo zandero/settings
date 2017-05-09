@@ -11,17 +11,21 @@ import java.util.List;
 
 /**
  * Base class to derive settings classes from
+ * Glorified HashMap with value checking
  */
 public class Settings extends HashMap<String, Object> {
 
 	private static final long serialVersionUID = 3853507321943751725L;
 
+	/**
+	 * Get setting as String
+	 *
+	 * @param name setting key
+	 * @return setting value as String
+	 *
+	 * @throws IllegalArgumentException is setting is not present
+	 */
 	public String getString(String name) {
-
-		return get(name).toString();
-	}
-
-	public String asString(String name) {
 
 		Object value = get(name);
 		if (value instanceof String ||
@@ -38,11 +42,30 @@ public class Settings extends HashMap<String, Object> {
 		return get(name).toString();
 	}
 
+	/**
+	 * Searches for setting by name
+	 *
+	 * @param name to search for
+	 * @return found setting as String or null if not found
+	 */
 	public String findString(String name) {
 
-		return (String) find(name);
+		try {
+			return getString(name);
+		}
+		catch (IllegalArgumentException e) {
+			return null;
+		}
 	}
 
+	/**
+	 * Get setting as integer
+	 *
+	 * @param name setting key
+	 * @return setting value as integer
+	 *
+	 * @throws IllegalArgumentException is setting is not present or can not be converted to an integer
+	 */
 	public int getInt(String name) {
 
 		Object value = super.get(name);
@@ -63,6 +86,12 @@ public class Settings extends HashMap<String, Object> {
 		}
 	}
 
+	/**
+	 * Finds setting as Integer
+	 *
+	 * @param name setting key
+	 * @return setting value as integer or null if not found (or in invalid format)
+	 */
 	public Integer findInt(String name) {
 
 		try {
@@ -73,6 +102,12 @@ public class Settings extends HashMap<String, Object> {
 		}
 	}
 
+	/**
+	 * Returns setting as array of Strings
+	 * @param name of setting
+	 * @return Array of Strings
+	 * @throws IllegalArgumentException in case setting is not an array
+	 */
 	public String[] getStrings(String name) {
 
 		Object value = super.get(name);
@@ -83,11 +118,31 @@ public class Settings extends HashMap<String, Object> {
 		throw new IllegalArgumentException("Setting: '" + name + "', can't be converted to string array: '" + value + "'!");
 	}
 
+	/**
+	 * Returns boolean flag
+	 * @param name of flag
+	 * @return true or false
+	 * @throws IllegalArgumentException in case setting is not a boolean setting
+	 */
 	public boolean getBool(String name) {
 
 		Object value = super.get(name);
+
 		if (value instanceof Boolean) {
 			return (Boolean) value;
+		}
+
+		if (value instanceof String) {
+			String txt = (String)value;
+			txt = txt.trim().toLowerCase();
+
+			if ("yes".equals(txt) || "y".equals(txt) || "1".equals(txt) || "true".equals(txt) || "t".equals(txt)) {
+				return true;
+			}
+
+			if ("no".equals(txt) || "n".equals(txt) || "0".equals(txt) || "false".equals(txt) || "f".equals(txt)) {
+				return false;
+			}
 		}
 
 		if (value == null) {
@@ -97,9 +152,27 @@ public class Settings extends HashMap<String, Object> {
 		throw new IllegalArgumentException("Setting: '" + name + "', can't be converted to boolean: '" + value + "'!");
 	}
 
+	public Boolean findBool(String name) {
+
+		try {
+			return getBool(name);
+		}
+		catch (IllegalArgumentException e) {
+			return null;
+		}
+	}
+
+	/**
+	 * Gets setting or throws an IllegalArgumentException if not found
+	 *
+	 * @param name of setting to search for
+	 * @return found value
+	 *
+	 * @throws IllegalArgumentException in case setting is not present
+	 */
 	private Object get(String name) {
 
-		Object value = super.get(name);
+		Object value = find(name);
 		if (value == null) {
 			throw new IllegalArgumentException("Setting: '" + name + "', not found!");
 		}
@@ -107,11 +180,25 @@ public class Settings extends HashMap<String, Object> {
 		return value;
 	}
 
+	/**
+	 * Finds setting if any
+	 *
+	 * @param name of setting to search for
+	 * @return found value or null if not found
+	 */
 	public Object find(String name) {
 		// doesn't throw exception if setting not found ... simply returns null
 		return super.get(name);
 	}
 
+	/**
+	 * Returns setting a list of objects
+	 * @param name setting name
+	 * @param type type of object
+	 * @param <T> type
+	 * @return list of found setting
+	 * @throws IllegalArgumentException in case settings could not be converted to given type
+	 */
 	public <T> List<T> getList(String name, Class<T> type) {
 
 		Object value = super.get(name);
@@ -129,9 +216,12 @@ public class Settings extends HashMap<String, Object> {
 			return output;
 		}
 
-		throw new IllegalArgumentException("Setting: '" + name + "', can't be converted to Map<String, Integer>: '" + value + "'!");
+		throw new IllegalArgumentException("Setting: '" + name + "', can't be converted to List<" + type.getName() + ">: '" + value + "'!");
 	}
 
+	/**
+	 * Builder to set up a setting collection
+	 */
 	public static class Builder {
 
 		private static final Logger log = LoggerFactory.getLogger(Builder.class);
