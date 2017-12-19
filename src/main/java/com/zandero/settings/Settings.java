@@ -2,12 +2,11 @@ package com.zandero.settings;
 
 import com.zandero.utils.Assert;
 import com.zandero.utils.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Base class to derive settings classes from
@@ -31,7 +30,7 @@ public class Settings extends HashMap<String, Object> {
 		if (value instanceof String ||
 			value instanceof Boolean ||
 			value instanceof Integer) {
-			return getString(name);
+			return value.toString();
 		}
 
 		if (value instanceof String[]) {
@@ -224,9 +223,9 @@ public class Settings extends HashMap<String, Object> {
 	 */
 	public static class Builder {
 
-		private static final Logger log = LoggerFactory.getLogger(Builder.class);
-
 		private final Settings settings;
+
+		private Logger log = Logger.getLogger(Builder.class.getName());
 
 		public Builder() {
 
